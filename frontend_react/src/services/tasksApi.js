@@ -2,11 +2,20 @@ const DEFAULT_API_BASE_URL = "http://localhost:3001";
 
 /**
  * Return base URL from env var, with fallback to local backend.
- * CRA exposes env vars only if prefixed with REACT_APP_.
+ *
+ * Notes:
+ * - CRA exposes env vars only if prefixed with REACT_APP_.
+ * - The preview environment may provide different variable names (e.g. REACT_APP_API_BASE).
  */
 function getApiBaseUrl() {
-  const fromEnv = process.env.REACT_APP_API_BASE_URL;
-  return (fromEnv && fromEnv.trim()) ? fromEnv.trim() : DEFAULT_API_BASE_URL;
+  const candidates = [
+    process.env.REACT_APP_API_BASE_URL,
+    process.env.REACT_APP_API_BASE,
+    process.env.REACT_APP_BACKEND_URL
+  ];
+
+  const fromEnv = candidates.find(v => typeof v === "string" && v.trim().length > 0);
+  return fromEnv ? fromEnv.trim().replace(/\/+$/, "") : DEFAULT_API_BASE_URL;
 }
 
 async function parseJsonSafely(response) {
